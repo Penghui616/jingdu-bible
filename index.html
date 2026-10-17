@@ -2,7 +2,7 @@
 <html lang="zh-CN" data-api-mode="direct">
 <head>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self'; connect-src 'self' https://dashscope.aliyuncs.com https://dashscope-intl.aliyuncs.com https://dashscope-us.aliyuncs.com https://*.cn-beijing.maas.aliyuncs.com https://*.ap-southeast-1.maas.aliyuncs.com https://*.us-east-1.maas.aliyuncs.com; img-src 'self' data:; base-uri 'self'; object-src 'none'">
-  <meta name="jingdu-build" content="20261017-5">
+  <meta name="jingdu-build" content="20261017-6">
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="一处安静的读经空间。本地圣经阅读、经文搜索与个人笔记。">
   <meta name="theme-color" content="#f9f8f4">
@@ -51,14 +51,13 @@
       <button id="assistant-backdrop" class="assistant-backdrop" aria-label="关闭助手" hidden></button>
       <aside class="study-panel" id="study-panel" aria-label="研读助手">
         <div class="panel-body" id="assistant-pane">
-          <div class="assistant-heading"><h2>研读助手</h2><div class="assistant-tools"><div class="chat-font-controls" role="group" aria-label="对话字号"><button id="chat-smaller" type="button" aria-label="缩小对话文字">字−</button><button id="chat-larger" type="button" aria-label="放大对话文字">字＋</button></div><button id="close-assistant" class="assistant-close" type="button">× 关闭助手</button></div><div class="assistant-options"><button id="new-chat" class="subtle-button">新对话</button><button id="model-settings" class="subtle-button" aria-label="模型设置" title="模型设置">设置</button></div></div>
+          <div class="assistant-heading"><h2>研读助手</h2><div class="assistant-tools"><div class="chat-font-controls" role="group" aria-label="对话字号"><button id="chat-smaller" type="button" aria-label="缩小对话文字">A−</button><button id="chat-larger" type="button" aria-label="放大对话文字">A+</button></div><button id="close-assistant" class="assistant-close" type="button">× 关闭助手</button></div><div class="assistant-options"><button id="new-chat" class="subtle-button">新对话</button><button id="model-settings" class="subtle-button" aria-label="模型设置" title="模型设置">设置</button></div></div>
           <p id="model-status" class="model-status" role="status" hidden></p>
           <div id="chat-log" class="chat-log" role="log" aria-live="polite" aria-label="助手对话"></div>
           <div class="chat-context" id="chat-context"><label><input type="checkbox" id="attach-context" aria-label="附带所选经文"><span id="assistant-reference"></span></label></div>
           <p id="chat-error" class="form-error" role="alert" hidden></p>
-          <form id="chat-form"><label class="sr-only" for="chat-input">你的问题</label><textarea id="chat-input" maxlength="4000" placeholder="输入你的问题…"></textarea><div class="chat-send-row"><label class="auto-speak-label"><input id="auto-speak" type="checkbox">朗读</label><button id="stop-speech" type="button" hidden>停止朗读</button><button id="cancel-chat" type="button" hidden>停止</button><button id="send-chat" class="primary-button">发送</button></div></form>
+          <form id="chat-form"><label class="sr-only" for="chat-input">你的问题</label><textarea id="chat-input" maxlength="4000" placeholder="输入你的问题…"></textarea><div class="chat-send-row"><label class="auto-speak-label"><input id="auto-speak" type="checkbox">朗读</label><button id="hold-to-talk" type="button" aria-label="按住说话，松开转文字，上滑取消">按住说话</button><button id="stop-speech" type="button" hidden>停止朗读</button><button id="cancel-chat" type="button" hidden>停止</button><button id="send-chat" class="primary-button">发送</button></div></form>
           <p id="speech-status" role="status"></p>
-          <button id="hold-to-talk" type="button" aria-label="按住说话，松开转文字，上滑取消">按住说话</button>
           <p id="voice-input-status" role="status" hidden></p>
         </div>
       </aside>

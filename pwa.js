@@ -7,7 +7,7 @@
   status.id = 'offline-status';
   status.setAttribute('role','status');
   about.append(instructions,status);
-  const version=document.createElement('p');version.textContent='网页版本：20261017-5';about.append(version);
+  const version=document.createElement('p');version.textContent='网页版本：20261017-6';about.append(version);
   const updateButton=document.createElement('button');updateButton.type='button';updateButton.className='primary-button';updateButton.textContent='检查更新';
   updateButton.onclick=()=>{
     try{sessionStorage.setItem('jingdu.update-draft',document.getElementById('chat-input').value);}catch{}
@@ -21,7 +21,7 @@
   status.textContent = '正在准备离线经文…';
   const register = async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./sw.js?build=20261017-5', {scope:'./',updateViaCache:'none'});
+      const registration = await navigator.serviceWorker.register('./sw.js?build=20261017-6', {scope:'./',updateViaCache:'none'});
       const update = () => {
         if(registration.active) status.textContent = '离线经文已就绪。断网可读经、记笔记；助手与语音需联网。';
         if(registration.waiting) status.textContent = '新版已下载，点「检查更新」即可切换。';

@@ -6,7 +6,7 @@
     try{
       if(!isSecureContext||!('serviceWorker' in navigator))throw new Error('请用 Safari 打开 HTTPS 网址后更新。');
       if(!navigator.onLine)throw new Error('当前没有网络，请联网后重试。');
-      const registration=await navigator.serviceWorker.register('./sw.js?build=20261017-5',{scope:'./',updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register('./sw.js?build=20261017-6',{scope:'./',updateViaCache:'none'});
       await registration.update();
       await new Promise((resolve,reject)=>{
         let settled=false;
@@ -16,7 +16,7 @@
           if(worker?.state==='redundant'){finish(new Error('新版未下载完整，请重试。'));return;}
           if(registration.waiting)registration.waiting.postMessage({type:'ACTIVATE_UPDATE'});
           const active=registration.active;
-          if(!worker&&active?.state==='activated'&&new URL(active.scriptURL).searchParams.get('build')==='20261017-5')finish();
+          if(!worker&&active?.state==='activated'&&new URL(active.scriptURL).searchParams.get('build')==='20261017-6')finish();
         },150);
         const timeout=setTimeout(()=>finish(new Error('下载尚未完成，请检查网络后重试。')),90000);
       });
