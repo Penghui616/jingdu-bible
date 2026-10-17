@@ -1,6 +1,6 @@
 'use strict';
 // Change this version whenever a cached application asset changes.
-const CACHE = 'jingdu-offline-v2-direct';
+const CACHE = 'jingdu-offline-v3-audio';
 const ROOT = new URL('./',self.location.href);
 const ASSETS = ['./', 'index.html', 'styles.css', 'app.js', 'direct-api.js', 'direct-core.js', 'speech.js', 'pwa.js', 'icon.svg', 'manifest.webmanifest', 'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png', 'data/cus.json', 'data/source.json'].map(path=>new URL(path,ROOT).href);
 self.addEventListener('install', event => {

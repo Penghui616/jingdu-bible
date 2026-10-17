@@ -329,6 +329,12 @@ $('auto-speak').disabled=!answerSpeech.supported;
 if(!answerSpeech.supported)$('speech-status').textContent='当前浏览器不支持音频播放';
 $('auto-speak').onchange=()=>{state.autoSpeak=$('auto-speak').checked;persist();if(!state.autoSpeak)answerSpeech.stop('已关闭自动朗读');};
 $('stop-speech').onclick=()=>answerSpeech.stop('已停止朗读');
+const speechDiagnostics=make('button','复制语音诊断','subtle-button');speechDiagnostics.type='button';
+speechDiagnostics.onclick=()=>copy(JSON.stringify(answerSpeech.diagnostics(),null,2));
+$('settings-form').append(speechDiagnostics);
+const resetSpeech=make('button','重置语音','subtle-button');resetSpeech.type='button';
+resetSpeech.onclick=()=>{answerSpeech.reset();$('settings-dialog').close();};
+$('settings-form').append(resetSpeech);
 async function loadModelStatus(){try{modelConfig=await api('/api/config');renderModelStatus();}catch(error){$('model-status').textContent=error.message;}}
 function renderChat(){
   const nodes=state.chat.map(turn=>{
