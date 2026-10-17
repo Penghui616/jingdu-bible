@@ -54,6 +54,20 @@ if(document.documentElement.dataset.apiMode==='direct'||new URLSearchParams(loca
         async cancel(){controller.abort();await iterator.return();}
       }),{headers:{'Content-Type':'application/x-ndjson'}});
     }
-    return {status,configure,clear,chat,speechResponse};
+    async function transcribe(audio,signal){
+      const config=await validated();if(!config.apiKey)throw new Error('请先在设置中填写百炼 API Key。');
+      if(typeof audio!=='string'||audio.length>6000000||!/^data:audio\/wav;base64,[A-Za-z0-9+/]+=*$/.test(audio))throw new Error('录音格式或大小不符合要求，请重新录音。');
+      let response;
+      try{response=await fetch(config.baseUrl+'/chat/completions',{
+        method:'POST',credentials:'omit',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(60000)]),
+        headers:{Authorization:`Bearer ${config.apiKey}`,'Content-Type':'application/json'},
+        body:JSON.stringify({model:'qwen3-asr-flash',messages:[{role:'user',content:[{type:'input_audio',input_audio:{data:audio}}]}],stream:false,asr_options:{language:'zh',enable_itn:true}})
+      });}catch(error){if(signal.aborted)throw new DOMException('已取消','AbortError');throw new Error(error.name==='TimeoutError'?'识别超时，请重试。':'无法连接语音识别服务，请检查网络。');}
+      if(!response.ok)throw new Error(({401:'语音识别认证失败，请检查密钥与地域。',403:'当前密钥没有语音识别权限，请检查百炼授权。',404:'当前地域或业务空间未提供 qwen3-asr-flash。',429:'语音识别额度不足或请求过于频繁。'})[response.status]||'语音识别服务暂时不可用，请重试。');
+      const result=await response.json().catch(()=>null),text=result?.choices?.[0]?.message?.content;
+      if(typeof text!=='string'||!text.trim())throw new Error('没有识别到说话内容，请靠近手机再试一次。');
+      return text.trim();
+    }
+    return {status,configure,clear,chat,speechResponse,transcribe};
   })();
 }

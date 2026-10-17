@@ -1,7 +1,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const STORAGE = 'jingdu.v1';
-const defaults = { book: 0, chapter: 1, selected: [], font: 20, bookmarks: {}, highlights: {}, notes: {}, savedPassages:{}, chat: [], autoSpeak:true };
+const defaults = { book: 0, chapter: 1, selected: [], font: 20, chatFont:18, bookmarks: {}, highlights: {}, notes: {}, savedPassages:{}, chat: [], autoSpeak:true };
 let state = JSON.parse(JSON.stringify(defaults));
 try { const saved = JSON.parse(localStorage.getItem(STORAGE)); if (saved && typeof saved === 'object') state = { ...state, ...saved }; } catch {}
 delete state.dark;
@@ -11,6 +11,7 @@ state.chat = Array.isArray(state.chat) ? state.chat.filter(t => t && ['user','as
 state.chat.forEach(t => { if(t.pending){ t.pending=false; t.failed=true; } });
 let bible, testament = 0, allVerses = [], toastTimer, resultMode = 'search', selectionAnchor = null, chatController = null;
 let modelConfig = { configured:false, model:'qwen3.8-max', baseUrl:'https://dashscope.aliyuncs.com/compatible-mode/v1' };
+let voiceInput=null,voiceBusy=false;
 const book = () => bible.books[state.book];
 const chapter = () => book().chapters.find(c => c.chapter === state.chapter);
 const chapterKey = () => `${book().code}.${state.chapter}`;
@@ -207,6 +208,7 @@ function syncAssistant(){
   $('panel-button').setAttribute('aria-expanded',String(open));
 }
 function setAssistantOpen(open){
+  if(!open)voiceInput?.cancel();
   if(open&&document.body.classList.contains('menu-open'))setMenuOpen(false);
   document.body.classList.toggle('panel-open',open&&mobileNavigation.matches);
   document.body.classList.toggle('panel-hidden',!open);
@@ -214,6 +216,14 @@ function setAssistantOpen(open){
   syncAssistant();
 }
 appearance();
+function chatAppearance(){
+  state.chatFont=Math.max(16,Math.min(30,Math.round(Number(state.chatFont)||18)));
+  document.documentElement.style.setProperty('--chat-size',`${state.chatFont}px`);
+  $('chat-smaller').disabled=state.chatFont<=16;$('chat-larger').disabled=state.chatFont>=30;
+}
+chatAppearance();
+$('chat-smaller').onclick=()=>{state.chatFont-=2;chatAppearance();persist();};
+$('chat-larger').onclick=()=>{state.chatFont+=2;chatAppearance();persist();};
 $('smaller').onclick=()=>{state.font=Math.max(16,state.font-1);appearance();persist();};
 $('larger').onclick=()=>{state.font=Math.min(28,state.font+1);appearance();persist();};
 const mobileNavigation=matchMedia('(max-width:960px)');
@@ -329,6 +339,12 @@ $('auto-speak').disabled=!answerSpeech.supported;
 if(!answerSpeech.supported)$('speech-status').textContent='当前浏览器不支持音频播放';
 $('auto-speak').onchange=()=>{state.autoSpeak=$('auto-speak').checked;persist();if(!state.autoSpeak)answerSpeech.stop('已关闭自动朗读');};
 $('stop-speech').onclick=()=>answerSpeech.stop('已停止朗读');
+voiceInput=window.createVoiceInput({button:$('hold-to-talk'),status:$('voice-input-status'),input:$('chat-input'),
+  beforeStart(){if(chatController)return '请等助手回答完成后再录音。';if(!window.BibleDirect)return '请使用手机直连版网页。';if(!window.BibleDirect.status().configured)return '请先在设置中填写百炼 API Key。';answerSpeech.stop();},
+  transcribe:(audio,signal)=>window.BibleDirect.transcribe(audio,signal),
+  onBusy(busy){voiceBusy=busy;$('send-chat').disabled=busy||!!chatController;$('new-chat').disabled=busy||!!chatController;}
+});
+$('hold-to-talk').hidden=!window.BibleDirect;
 const speechDiagnostics=make('button','复制语音诊断','subtle-button');speechDiagnostics.type='button';
 speechDiagnostics.onclick=()=>copy(JSON.stringify(answerSpeech.diagnostics(),null,2));
 $('settings-form').append(speechDiagnostics);
@@ -349,10 +365,11 @@ function renderChat(){
   if(!nodes.length)nodes.push(make('div','有什么想了解的？','chat-empty'));
   if(chatController)nodes.push(make('p','助手正在思考…','chat-pending'));
   $('chat-log').replaceChildren(...nodes);$('chat-log').scrollTop=$('chat-log').scrollHeight;
-  $('send-chat').disabled=!!chatController;$('cancel-chat').hidden=!chatController;$('new-chat').disabled=!!chatController;
+  $('send-chat').disabled=voiceBusy||!!chatController;$('cancel-chat').hidden=!chatController;$('new-chat').disabled=voiceBusy||!!chatController;
+  $('hold-to-talk').disabled=!!chatController;
 }
 async function sendQuestion(options={}){
-  if(chatController||!bible)return;
+  if(chatController||voiceBusy||!bible)return;
   const text=(options.prompt||$('chat-input').value).trim();if(!text){$('chat-input').focus();return;}
   if(text.length>4000){toast('问题请控制在 4000 字以内');return;}
   $('chat-error').hidden=true;
