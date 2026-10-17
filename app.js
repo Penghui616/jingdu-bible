@@ -12,6 +12,7 @@ state.chat.forEach(t => { if(t.pending){ t.pending=false; t.failed=true; } });
 let bible, testament = 0, allVerses = [], toastTimer, resultMode = 'search', selectionAnchor = null, chatController = null;
 let modelConfig = { configured:false, model:'qwen3.8-max', baseUrl:'https://dashscope.aliyuncs.com/compatible-mode/v1' };
 let voiceInput=null,voiceBusy=false;
+try{const draft=sessionStorage.getItem('jingdu.update-draft');if(draft!==null){$('chat-input').value=draft;sessionStorage.removeItem('jingdu.update-draft');}}catch{}
 const book = () => bible.books[state.book];
 const chapter = () => book().chapters.find(c => c.chapter === state.chapter);
 const chapterKey = () => `${book().code}.${state.chapter}`;
